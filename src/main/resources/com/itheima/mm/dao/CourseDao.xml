@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.mm.dao.CourseDao">
+    <sql id="select_where">
+        <where>
+            <!--
+                判断是否有搜索条件
+            -->
+            <if test="queryParams.name != null and queryParams.name.length > 0">
+                and name like "%"#{queryParams.name}"%"
+            </if>
+            <!--
+                判断客户端的搜索条件status，mybatis会自动将null设置为0来进行操作
+            -->
+            <if test="queryParams.status != null and queryParams.status.length > 0">
+                and isShow=#{queryParams.status}
+            </if>
+        </where>
+    </sql>
+    <insert id="add" parameterType="Course">
+        insert into t_course (name,createDate,isShow,userId,orderNo)
+        values (#{name},#{createDate},#{isShow},#{userId},#{orderNo})
+    </insert>
+
+    <select id="findTotalCourse" parameterType="QueryPageBean" resultType="long">
+        select count(*) from t_course
+
+        <include refid="select_where"></include>
+    </select>
+
+
+    <select id="findCourseListByPage" parameterType="QueryPageBean" resultType="Course">
+        <!--
+            当前页的数据集合要查询什么???
+                学科id: t_course.id
+                学科名字: t_course.name
+                创建者: 添加这个学科的user的名字 t_user.username
+                创建日期: t_course.createDate
+                前台是否显示: t_course.isShow
+                二级目录: 这个学科的所有二级目录的个数  t_catalog表查询当前学科的二级目录个数
+                标签: 这个学科的所有标签的个数  t_tag表查询当前学科的标签个数
+                题目数量:这个学科的所有题目的个数   t_question表查询当前学科的题目个数
+
+            查询条件是什么? 根据搜索条件
+
+            分页
+        -->
+        select
+            tc.id,
+            tc.name,
+            (select username from t_user where id=tc.userId) creator,
+            tc.createDate,
+            tc.isShow,
+            (select count(*) from t_catalog where courseId=tc.id) catalogQty,
+            (select count(*) from t_tag where courseId=tc.id) tagQty,
+            (select count(*) from t_question where courseId=tc.id) questionQty
+        from t_course tc
+
+        <include refid="select_where"></include>
+
+        limit #{offset},#{pageSize}
+    </select>
+
+
+    <update id="update" parameterType="Course">
+        update t_course set name=#{name},isShow=#{isShow} where id=#{id}
+    </update>
+
+    <delete id="deleteById" parameterType="int">
+        delete from t_course where id=#{id}
+    </delete>
+</mapper>
