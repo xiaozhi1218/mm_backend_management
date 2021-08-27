@@ -4,6 +4,7 @@ import com.itheima.mm.entity.QueryPageBean;
 import com.itheima.mm.pojo.Course;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 包名:com.itheima.mm.dao
@@ -21,4 +22,6 @@ public interface CourseDao {
     void update(Course course);
 
     void deleteById(Integer id);
+
+    List<Course> findAll(Map parameterMap);
 }

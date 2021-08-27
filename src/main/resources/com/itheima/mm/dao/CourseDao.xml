@@ -71,4 +71,27 @@
     <delete id="deleteById" parameterType="int">
         delete from t_course where id=#{id}
     </delete>
+    
+    <resultMap id="courseMap" type="Course" autoMapping="true">
+        <id column="id" property="id"></id>
+
+        <collection property="catalogList"
+                    column="id"
+                    select="com.itheima.mm.dao.CatalogDao.findCatalogListByCourseId"></collection>
+        <collection property="tagList"
+                    column="id"
+                    select="com.itheima.mm.dao.TagDao.findTagListByCourseId"></collection>
+    </resultMap>
+    <select id="findAll" parameterType="map" resultMap="courseMap">
+        select
+        id,
+        name
+        from
+        t_course
+        <where>
+            <if test="status != null and status.length>0">
+                isShow=#{status}
+            </if>
+        </where>
+    </select>
 </mapper>

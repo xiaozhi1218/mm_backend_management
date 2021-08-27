@@ -6,4 +6,8 @@
     <select id="findCatalogCountByCourseId" parameterType="int" resultType="long">
         select count(*) from t_catalog where courseId=#{courseId}
     </select>
+    
+    <select id="findCatalogListByCourseId" parameterType="int" resultType="Catalog">
+        select id,name from t_catalog where courseId=#{courseId}
+    </select>
 </mapper>

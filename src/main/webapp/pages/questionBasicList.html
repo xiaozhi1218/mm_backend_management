@@ -191,200 +191,76 @@
 
 					// 必传参数
 					let params = {
-						status: 0
+						status: 0 //status表示查询的学科是否显示，0表示显示 1表示不显示
 					};
-					console.log("学科下拉列表请求参数：");
-					console.log(params);
 
-					let response = {
-						data:{
-							"flag": true,
-							"message": "获取列表成功",
-							"result": [
-								{
-									"catalogList": [
-										{
-											"id": 1,
-											"name": "Java基础"
-										},
-										{
-											"id": 2,
-											"name": "JavaWeb"
-										},
-										{
-											"id": 3,
-											"name": "Spring MVC"
-										},
-										{
-											"id": 4,
-											"name": "Spring boot"
-										},
-										{
-											"id": 8,
-											"name": "进程线程"
-										},
-										{
-											"id": 13,
-											"name": "aaaa"
-										}
-									],
-									"id": 1,
-									"name": "Java"
-								},
-								{
-									"catalogList": [
-										{
-											"id": 5,
-											"name": "Python基础"
-										},
-										{
-											"id": 6,
-											"name": "函数编程"
-										},
-										{
-											"id": 7,
-											"name": "面向对象编程"
-										}
-									],
-									"id": 2,
-									"name": "Python"
-								},
-								{
-									"catalogList": [],
-									"id": 3,
-									"name": "大数据"
-								},
-								{
-									"catalogList": [],
-									"id": 4,
-									"name": "Php"
-								},
-								{
-									"catalogList": [],
-									"id": 8,
-									"name": "888"
-								},
-								{
-									"catalogList": [],
-									"id": 9,
-									"name": "2"
-								}
-							]
+					// 发送异步请求，查询status为0 的所有学科
+					axios.post("/course/findAll.do",params).then(response=>{
+						if (response.data.flag) {
+							//获取成功
+							this.courses = response.data.result
+						}else {
+							this.$message({
+							    type:"error",
+							    message:response.data.message,
+							    showClose:true
+							})
 						}
-					}
-
-					t.courses =response.data.result;
-
-
-
+					})
 				},
-				// 试题分页列表
+				//试题分页列表
 				getList() {
 					let t = this;
 
 					// 必传参数
 					let params = {
-						currentPage: t.pagination.pageNum,
-						pageSize: t.pagination.pageSize
+						currentPage: t.pagination.pageNum, //当前页数
+						pageSize: t.pagination.pageSize //每页数据条数
 					};
+
 					// 选传参数
 					let queryParams = {};
+
+					//搜索条件中的学科id
 					let courseId = t.requestParameters.courseId;
 					if (courseId !== '') {
 						queryParams.courseId = courseId;
 					}
+
+					//搜索条件中的难度
 					let difficulty = t.requestParameters.difficulty;
 					if (difficulty !== '') {
 						queryParams.difficulty = difficulty;
 					}
+
+					//搜索条件中的题目类型
 					let type = t.requestParameters.type;
 					if (type !== '') {
 						queryParams.type = type;
 					}
+
+					//搜索条件中的关键字
 					let keyWord = t.requestParameters.keyWord;
 					if (keyWord !== '') {
 						queryParams.keyWord = keyWord;
 					}
+
 					if (Object.keys(queryParams).length) {
 						params.queryParams = queryParams;
 					}
-					console.log("基础题库列表请求参数：");
-					console.log(params);
-
-				  let data = {
-						"flag": true,
-						"message": "获取题目列表成功",
-						"result": {
-							"rows": [
-								{
-									"courseName": "java",
-									"createDate": "2019-08-08 00:00:00.0",
-									"creator": "admin",
-									"difficulty": 4,
-									"id": 11,
-									"number": "",
-									"status": 0,
-									"subject": "<p>反爬虫措施？</p>\r\n",
-									"type": 3,
-									"usedQty": "0"
-								},
-								{
-									"courseName": "java",
-									"createDate": "2019-08-08 00:00:00.0",
-									"creator": "admin",
-									"difficulty": 5,
-									"id": 12,
-									"number": "",
-									"status": 0,
-									"subject": "<p>加入Redis里面有1亿个key，其中10w个key是以某个固定的一直的前缀开头的，如何将他们全部找出来。</p>\r\n",
-									"type": 3,
-									"usedQty": "0"
-								},
-								{
-									"courseName": "java",
-									"createDate": "2019-08-08 00:00:00.0",
-									"creator": "admin",
-									"difficulty": 3,
-									"id": 13,
-									"number": "",
-									"status": 0,
-									"subject": "<p>Redis是多进程还是多线程的，简单描述redis数据库对于线程的管理机制</p>\r\n",
-									"type": 3,
-									"usedQty": "0"
-								},
-								{
-									"courseName": "java",
-									"createDate": "2019-08-08 00:00:00.0",
-									"creator": "admin",
-									"difficulty": 3,
-									"id": 14,
-									"number": "",
-									"status": 0,
-									"subject": "<p>redis相比memcached有哪些优势</p>\r\n",
-									"type": 3,
-									"usedQty": "0"
-								},
-								{
-									"courseName": "java",
-									"createDate": "2019-08-08 00:00:00.0",
-									"creator": "admin",
-									"difficulty": 2,
-									"id": 15,
-									"number": "",
-									"status": 0,
-									"subject": "<p>谈谈对线程池的理解?</p>\r\n",
-									"type": 3,
-									"usedQty": "0"
-								}
-							],
-							"total": 20
+					// 请求参数时候{currentPage:,pageSize:,queryParams:{}}
+					axios.post("/question/basic.do",params).then(response=>{
+						if (response.data.flag) {
+							this.pagination.total = response.data.result.total
+							this.items = response.data.result.rows
+						}else {
+							this.$message({
+							    type:"error",
+							    message:response.data.message,
+							    showClose:true
+							})
 						}
-					}
-					t.pagination.total = data.result.total;
-					t.items = data.result.rows;
-					t.loading = true;
-
-
+					})
 				},
 				//清除
 				handleRest() {
@@ -407,6 +283,8 @@
 				},
 				// 新增试题
 				handleCreate() {
+					//跳转页面，跳转到questionEditor.html
+					//携带参数questionId=0以及is_classic=0
 					window.location.href = "questionEditor.html?questionId=0&is_classic=" + this.is_classic;
 				},
 				// 预览试题

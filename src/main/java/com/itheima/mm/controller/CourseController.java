@@ -16,6 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 包名:com.itheima.mm.controller
@@ -26,6 +28,7 @@ import java.util.Date;
 @Controller
 public class CourseController {
     private CourseService courseService = new CourseService();
+
     @RequestMapping("/course/add")
     public void addCourse(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
@@ -40,7 +43,6 @@ public class CourseController {
 
             //3. 调用业务层的方法保存学科course的信息
             courseService.addCourse(course);
-
             //添加学科成功
             JsonUtils.printResult(response,new Result(true,"添加学科成功"));
         } catch (Exception e) {
@@ -92,6 +94,21 @@ public class CourseController {
         } catch (Exception e) {
             e.printStackTrace();
             JsonUtils.printResult(response,new Result(false,e.getMessage()));
+        }
+    }
+
+    @RequestMapping("/course/findAll")
+    public void findAll(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        try {
+            //1. 获取请求参数
+            Map parameterMap = JsonUtils.parseJSON2Object(request, Map.class);
+            //2. 调用业务层的方法，查询所有学科
+            List<Course> courseList = courseService.findAll(parameterMap);
+
+            JsonUtils.printResult(response,new Result(true,"获取学科列表成功",courseList));
+        } catch (Exception e) {
+            e.printStackTrace();
+            JsonUtils.printResult(response,new Result(false,"获取学科列表失败"));
         }
     }
 }

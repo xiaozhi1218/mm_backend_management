@@ -102,4 +102,17 @@ public class CourseService {
             SqlSessionFactoryUtils.commitAndClose(sqlSession);
         }
     }
+
+    public List<Course> findAll(Map parameterMap) throws Exception {
+        if (parameterMap.get("status") != null) {
+            String status = (int)parameterMap.get("status") +"";
+            parameterMap.put("status",status);
+        }
+        SqlSession sqlSession = SqlSessionFactoryUtils.openSqlSession();
+        CourseDao courseDao = sqlSession.getMapper(CourseDao.class);
+        List<Course> courseList = courseDao.findAll(parameterMap);
+
+        SqlSessionFactoryUtils.commitAndClose(sqlSession);
+        return courseList;
+    }
 }

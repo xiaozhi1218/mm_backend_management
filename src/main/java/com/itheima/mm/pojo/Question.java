@@ -29,6 +29,7 @@ public class Question {
 	  private Integer catalogId;   //标签ID
 	  private Integer courseId;    // 学科ID
 
+	  private Integer is_classic;
 	  // 扩展字段
 	  private String courseName;            // 学科名称
 	  private String usedQty;               // 使用次数

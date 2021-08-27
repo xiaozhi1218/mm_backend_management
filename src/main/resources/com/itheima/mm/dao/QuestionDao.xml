@@ -6,4 +6,84 @@
     <select id="findQuestionCountByCourseId" parameterType="int" resultType="long">
         select count(*) from t_question where courseId=#{courseId}
     </select>
+
+    <sql id="select_where">
+        <if test="queryParams != null">
+            <if test="queryParams.courseId != null">
+                and courseId=#{queryParams.courseId}
+            </if>
+
+            <if test="queryParams.type != null">
+                and type=#{queryParams.type}
+            </if>
+
+            <if test="queryParams.difficulty != null">
+                and difficulty=#{queryParams.difficulty}
+            </if>
+
+            <if test="queryParams.keyWord != null">
+                and subject like "%"#{queryParams.keyWord}"%"
+            </if>
+        </if>
+    </sql>
+
+    <select id="findBasicQuestionCount" parameterType="QueryPageBean" resultType="long">
+        select count(*) from t_question
+        <!--
+            isClassic表示试题是基础试题还是精选试题，如果为1表示精选试题，如果为0表示基础试题
+        -->
+        where isClassic=0
+        <include refid="select_where"></include>
+    </select>
+
+    <select id="findBasicQuestionList" parameterType="QueryPageBean" resultType="Question">
+        <!--
+            试题编号: id+10000
+            题型: 试题的类型 t_question.type
+            题干: 试题的标题 t_question_subject.subject
+            录入时间: 当前试题被添加的时间 t_question.createDate
+            难度: 试题的难度 t_question.difficulty
+            录入人: 当前题目的录入人员的名字   t_user.name
+            学科名字: 查询当前试题所属的那个学科的名字   t_course.name
+            使用次数: 这道题被多少个用户做过  根据试题的id到tr_member_question表中查询数据条数
+        -->
+        select
+        id,
+        10000+tq.id number,
+        tq.type,
+        tq.subject,
+        tq.createDate,
+        tq.difficulty,
+        (select username from t_user where id=tq.userId) creator,
+        (select name from t_course where id=tq.courseId) courseName,
+        (select count(*) from tr_member_question WHERE questionId=tq.id) usedQty
+        from
+        t_question tq
+        where
+        isClassic=0
+
+        <include refid="select_where"></include>
+
+        limit #{offset},#{pageSize}
+    </select>
+    
+    
+    <insert id="add" parameterType="Question">
+        <selectKey resultType="int" keyColumn="id" keyProperty="id" order="AFTER">
+            select last_insert_id()
+        </selectKey>
+        insert into
+        t_question
+        (subject,type,difficulty,analysis,analysisVideo,remark,
+        isClassic,status,reviewStatus,createDate,userId,companyId,
+        catalogId,courseId)
+
+        values (#{subject},#{type},#{difficulty},#{analysis},#{analysisVideo},#{remark},
+        #{is_classic},#{status},#{reviewStatus},#{createDate},#{userId},#{companyId},
+        #{catalogId},#{courseId})
+    </insert>
+
+    <insert id="associationQuestionAndTag" parameterType="map">
+        insert into tr_question_tag values (#{questionId},#{tagId})
+    </insert>
 </mapper>
